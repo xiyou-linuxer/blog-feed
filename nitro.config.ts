@@ -5,13 +5,22 @@ export default defineNitroConfig({
     alias: {
         '~/': './',
     },
+
     compatibilityDate: '2025-03-01',
+
     experimental: {
         tasks: true,
     },
+
+    routeRules: {
+        '/': { redirect: 'https://www.xiyoulinux.com/blog' },
+        '/api/articles': { headers: { 'Access-Control-Allow-Origin': '*' } },
+    },
+
     runtimeConfig: {
         MONGO_URI: process.env.MONGO_URI,
     },
+
     scheduledTasks: {
         '30 1-23/4 * * *': ['db:update'],
     },

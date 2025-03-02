@@ -11,26 +11,27 @@ export default defineEventHandler(async (event) => {
     if (query.author)
         filter.author = query.author
 
-    // 解析分页参数
     const page = Number.parseInt(query.page as string) || 1
-    const limit = Number.parseInt(query.limit as string) || 24
-    const skip = (page - 1) * limit
+    const size = Number.parseInt(query.size as string) || 24
+    const skip = (page - 1) * size
 
     const [articles, total] = await Promise.all([
         Article
             .find(filter)
             .sort({ date: -1 })
             .skip(skip)
-            .limit(limit),
+            .limit(size),
         Article.countDocuments(filter),
     ])
 
     return {
         success: true,
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+        pagination: {
+            page,
+            size,
+            total,
+            totalPages: Math.ceil(total / size),
+        },
         articles,
     }
 })
