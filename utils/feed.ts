@@ -13,6 +13,7 @@ const feedTypeMap = {
         test: xml => xml.feed,
         parse: xml => toArray(xml.feed.entry).map((entry) => {
             return {
+                author: purifyNode(xml.feed.title),
                 title: purifyNode(entry.title),
                 description: purifyNode(entry.summary || entry.content),
                 link: entry.link.$href,
@@ -24,6 +25,7 @@ const feedTypeMap = {
         test: xml => xml.rss,
         parse: xml => toArray(xml.rss.channel.item).map((item) => {
             return {
+                author: purifyNode(xml.rss.channel.title),
                 title: purifyNode(item.title),
                 description: purifyNode(item.description),
                 link: item.link,

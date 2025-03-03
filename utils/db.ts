@@ -1,9 +1,8 @@
-import { useRuntimeConfig } from '#imports'
+import process from 'node:process'
 import mongoose from 'mongoose'
 
 export async function connectDB() {
-    const config = useRuntimeConfig()
-    const MONGO_URI = config.MONGO_URI || 'mongodb://localhost:27017'
+    const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017'
 
     if (mongoose.connection.readyState >= 1)
         return

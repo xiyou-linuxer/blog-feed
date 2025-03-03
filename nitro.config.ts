@@ -1,5 +1,3 @@
-import process from 'node:process'
-
 // https://nitro.unjs.io/config
 export default defineNitroConfig({
     alias: {
@@ -13,12 +11,7 @@ export default defineNitroConfig({
     },
 
     routeRules: {
-        '/': { redirect: 'https://www.xiyoulinux.com/blog' },
-        '/api/articles': { headers: { 'Access-Control-Allow-Origin': '*' } },
-    },
-
-    runtimeConfig: {
-        MONGO_URI: process.env.MONGO_URI,
+        '/articles': { headers: { 'Access-Control-Allow-Origin': '*' } },
     },
 
     scheduledTasks: {

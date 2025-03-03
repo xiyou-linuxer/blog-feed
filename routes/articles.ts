@@ -6,8 +6,8 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
 
     const filter: any = {}
-    if (query.tag)
-        filter.tag = query.tag
+    if (query.grade)
+        filter.grade = query.grade
     if (query.author)
         filter.author = query.author
 

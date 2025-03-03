@@ -1,20 +1,33 @@
 {
+  "name": "blog-feed",
   "private": true,
+  "description": "西邮Linux兴趣小组博客订阅源聚合",
+  "author": {
+    "name": "Zhilu/纸鹿",
+    "url": "https://www.zhilu.cyou"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiyou-linuxer/blog-feed"
+  },
   "scripts": {
     "build": "nitro build",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
-    "preview": "node .output/server/index.mjs"
+    "preview": "env-cmd -- node .output/server/index.mjs",
+    "serve": "env-cmd -- pm2 start .output/server/index.mjs"
   },
   "dependencies": {
+    "env-cmd": "^10.1.0",
     "fast-xml-parser": "^5.0.8",
     "mongoose": "^8.11.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.3.0",
+    "@antfu/eslint-config": "^4.4.0",
     "eslint": "^9.21.0",
     "nitropack": "^2.10.4"
   },
+  "feedSource": "https://gh.llkk.cc/https://github.com/xiyou-linuxer/website-2024/blob/main/docs/.vitepress/data/members.json",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",
