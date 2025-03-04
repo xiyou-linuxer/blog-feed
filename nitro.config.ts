@@ -15,6 +15,6 @@ export default defineNitroConfig({
     },
 
     scheduledTasks: {
-        '30 1-23/4 * * *': ['db:update'],
+        '40 0-23/8 * * *': ['update'],
     },
 })

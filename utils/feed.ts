@@ -36,9 +36,8 @@ const feedTypeMap = {
 }
 
 function toArray<T>(obj: T | T[]): T[] {
-    if (obj === undefined) {
+    if (obj === undefined)
         return []
-    }
     return Array.isArray(obj) ? obj : [obj]
 }
 
@@ -53,20 +52,19 @@ function purifyDate(date: string): string {
 
 export async function getPosts(feed: string) {
     const response = await fetch(feed)
-    if (!response.ok)
+    if (!response.ok) {
+        console.warn(`❌ Feed 请求失败 ${feed} ${response.status} ${response.statusText}`)
         return []
+    }
 
     const data = await response.text()
     const parsed = parser.parse(data)
 
-    try {
-        for (const feedType of Object.values(feedTypeMap)) {
-            if (feedType.test(parsed)) {
-                return feedType.parse(parsed)
-            }
-        }
+    for (const feedType of Object.values(feedTypeMap)) {
+        if (feedType.test(parsed))
+            return feedType.parse(parsed)
     }
-    catch (e) {
-        console.error(e)
-    }
+
+    console.warn(`❓ 未知的 Feed 类型 ${feed}`, parsed)
+    return []
 }

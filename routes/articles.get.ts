@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
     ])
 
     return {
-        success: true,
+        result: 'success',
         pagination: {
             page,
             size,
