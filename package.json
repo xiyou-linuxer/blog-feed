@@ -1,5 +1,6 @@
 {
   "name": "blog-feed",
+  "version": "1.1.0",
   "private": true,
   "description": "西邮Linux兴趣小组博客订阅源聚合",
   "author": {
@@ -15,7 +16,11 @@
     "dev": "nitro dev",
     "prepare": "nitro prepare",
     "preview": "env-cmd -- node .output/server/index.mjs",
-    "serve": "env-cmd -- pm2 start .output/server/index.mjs"
+    "start": "env-cmd -- pm2 start .output/server/index.mjs --name blog-feed",
+    "stop": "pm2 stop blog-feed",
+    "remove": "pm2 delete blog-feed",
+    "reload": "pm2 reload blog-feed --update-env",
+    "hot": "git pull && pnpm i && pnpm build && env-cmd -- pm2 reload blog-feed --update-env"
   },
   "dependencies": {
     "env-cmd": "^10.1.0",
@@ -27,7 +32,6 @@
     "eslint": "^9.21.0",
     "nitropack": "^2.10.4"
   },
-  "feedSource": "https://gh.llkk.cc/https://github.com/xiyou-linuxer/website-2024/blob/main/docs/.vitepress/data/members.json",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",

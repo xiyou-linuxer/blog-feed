@@ -3,24 +3,23 @@ import { connectDB } from '~/utils/db'
 
 export default defineEventHandler(async (event) => {
     await connectDB()
-    const query = getQuery(event)
+    const {
+        page: pageQuery,
+        limit: limitQurery,
+        ...filter
+    } = getQuery(event)
 
-    const filter: any = {}
-    if (query.grade)
-        filter.grade = query.grade
-    if (query.author)
-        filter.author = query.author
-
-    const page = Number.parseInt(query.page as string) || 1
-    const size = Number.parseInt(query.size as string) || 24
-    const skip = (page - 1) * size
+    const page = Number.parseInt(pageQuery as string) || 1
+    const limit = Number.parseInt(limitQurery as string) || 24
+    const skip = (page - 1) * limit
 
     const [articles, total] = await Promise.all([
         Article
             .find(filter)
             .sort({ date: -1 })
             .skip(skip)
-            .limit(size),
+            .limit(limit)
+            .lean(),
         Article.countDocuments(filter),
     ])
 
@@ -28,9 +27,9 @@ export default defineEventHandler(async (event) => {
         result: 'success',
         pagination: {
             page,
-            size,
+            limit,
             total,
-            totalPages: Math.ceil(total / size),
+            totalPages: Math.ceil(total / limit),
         },
         articles,
     }

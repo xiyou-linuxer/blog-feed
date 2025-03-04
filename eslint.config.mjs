@@ -11,6 +11,6 @@ export default antfu({
     files: ['**/*.json'],
     rules: {
         'jsonc/indent': ['warn', 2],
-        'style/eol-last': ['warn', 'never'],
+        // 'style/eol-last': ['warn', 'never'],
     },
 })

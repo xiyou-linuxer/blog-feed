@@ -14,7 +14,14 @@ export default defineNitroConfig({
         '/articles': { headers: { 'Access-Control-Allow-Origin': '*' } },
     },
 
+    runtimeConfig: {
+        feedSource: 'https://gh.llkk.cc/https://github.com/xiyou-linuxer/website-2024/blob/main/docs/.vitepress/data/members.json',
+        nameKey: 'name',
+        tagKey: 'grade',
+        feedKey: 'feed',
+    },
+
     scheduledTasks: {
-        '40 0-23/8 * * *': ['update'],
+        '58 3-23/8 * * *': ['update'],
     },
 })
