@@ -1,6 +1,6 @@
 import { Article } from '~/models/article'
 import { connectDB } from '~/utils/db'
-import { getPosts } from '~/utils/feed'
+import { getFeedSource, getPosts } from '~/utils/feed'
 
 export default defineTask({
     async run() {
@@ -17,9 +17,7 @@ export default defineTask({
 
         console.info(`⏳ 获取 ${feedSource}`)
 
-        const members = feedSource.startsWith?.('http')
-            ? await fetch(feedSource).then(res => res.json())
-            : feedSource
+        const members = await getFeedSource()
 
         console.info('⏳ 开始爬取订阅源')
 

@@ -68,3 +68,10 @@ export async function getPosts(feed: string) {
     console.warn(`❓ 未知的 Feed 类型 ${feed}`, parsed)
     return []
 }
+
+export async function getFeedSource() {
+    const { feedSource } = useRuntimeConfig()
+    return feedSource.startsWith?.('http')
+        ? await fetch(feedSource).then(res => res.json())
+        : feedSource
+}

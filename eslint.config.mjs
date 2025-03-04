@@ -5,12 +5,12 @@ export default antfu({
         indent: 4,
     },
     rules: {
+        'jsonc/indent': ['warn', 2],
         'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
     },
 }, {
-    files: ['**/*.json'],
+    files: ['package.json'],
     rules: {
-        'jsonc/indent': ['warn', 2],
-        // 'style/eol-last': ['warn', 'never'],
+        'style/eol-last': ['warn', 'never'],
     },
 })

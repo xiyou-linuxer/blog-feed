@@ -52,8 +52,8 @@ MONGO_URI="mongodb://user:password@localhost:27017/blog-feed"
 export default defineNitroConfig({
     // ...
     runtimeConfig: {
-        feedSource: 'https://gh.llkk.cc/https://github.com/xiyou-linuxer/website-2024/blob/main/docs/.vitepress/data/members.json', // 订阅源集合
-        nameKey: 'name', // 订阅源名称字段，用于日志打印
+        // 订阅源集合 URL，其他非必要字段见配置
+        feedSource: 'https://raw.githubusercontent.com/xiyou-linuxer/website-2024/refs/heads/main/docs/.vitepress/data/members.json',
         tagKey: 'grade', // 订阅源标签字段，用于查询时分类
         feedKey: 'feed', // 订阅源地址字段
     },
@@ -113,15 +113,19 @@ pnpm restart    # 重启后台运行
 
 获取文章列表，支持按订阅源、标签筛选，支持分页。
 
-##### 查询参数
+##### 查询参数（可选）
 
-| 参数    | 说明                  | 示例                                              |
-| ------- | --------------------- | ------------------------------------------------- |
-| `page`  | 页码（默认 1）        | `/articles?page=1`                                |
-| `limit` | 每页文章数（默认 10） | `/articles?limit=10`                              |
-|         |                       |                                                   |
-| `feed`  | 按订阅源筛选          | `/articles?feed=https://blog.zhilu.cyou/atom.xml` |
-| `tag`   | 按标签筛选            | `/articles?tag=1`                                 |
+| 参数    | 说明       | 示例                 |
+| ------- | ---------- | -------------------- |
+| `page`  | 页码       | `/articles?page=1`   |
+| `limit` | 每页文章数 | `/articles?limit=10` |
+
+如果指定了未知参数，则查询结果为空，因为所有剩余参数会查询数据库，例如：
+
+| 参数   | 说明         | 示例                                              |
+| ------ | ------------ | ------------------------------------------------- |
+| `feed` | 按订阅源筛选 | `/articles?feed=https://blog.zhilu.cyou/atom.xml` |
+| `tag`  | 按标签筛选   | `/articles?tag=1`                                 |
 
 ##### 返回格式
 
@@ -151,6 +155,10 @@ pnpm restart    # 重启后台运行
   ]
 }
 ```
+
+#### `GET /opml`
+
+获取订阅源列表，返回格式为 OPML。
 
 #### `POST /manual-update`
 
