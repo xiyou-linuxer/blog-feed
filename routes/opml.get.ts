@@ -1,5 +1,4 @@
 import { XMLBuilder } from 'fast-xml-parser'
-import { getFeedSource } from '~/utils/feed'
 
 const builder = new XMLBuilder({
     attributeNamePrefix: '$',
@@ -20,8 +19,8 @@ function mapEntry(item: Record<string, any>) {
 }
 
 export default defineEventHandler(async () => {
-    const members = await getFeedSource()
-    const outlines = members.filter(item => item[runtimeConfig.feedKey]).map(mapEntry)
+    const feedList = await cachedFeedList()
+    const outlines = feedList.map(mapEntry)
 
     const opml = {
         $version: '2.0',

@@ -1,10 +1,11 @@
 {
   "name": "blog-feed",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "西邮Linux兴趣小组博客订阅源聚合",
   "author": {
     "name": "Zhilu/纸鹿",
+    "email": "hi@zhilu.cyou",
     "url": "https://www.zhilu.cyou"
   },
   "repository": {
@@ -23,14 +24,14 @@
     "hot": "git pull && pnpm i && pnpm build && env-cmd -- pm2 reload blog-feed --update-env"
   },
   "dependencies": {
-    "env-cmd": "^10.1.0",
     "fast-xml-parser": "^5.0.8",
-    "mongoose": "^8.12.0"
+    "mongoose": "^8.12.1",
+    "nitropack": "^2.11.4"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.4.0",
-    "eslint": "^9.21.0",
-    "nitropack": "^2.10.4"
+    "@antfu/eslint-config": "^4.6.0",
+    "env-cmd": "^10.1.0",
+    "eslint": "^9.21.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

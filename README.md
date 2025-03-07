@@ -53,7 +53,7 @@ export default defineNitroConfig({
     // ...
     runtimeConfig: {
         // 订阅源集合 URL，其他非必要字段见配置
-        feedSource: 'https://raw.githubusercontent.com/xiyou-linuxer/website-2024/refs/heads/main/docs/.vitepress/data/members.json',
+        feedListUrl: 'https://raw.githubusercontent.com/xiyou-linuxer/website-2024/refs/heads/main/docs/.vitepress/data/members.json',
         tagKey: 'grade', // 订阅源标签字段，用于查询时分类
         feedKey: 'feed', // 订阅源地址字段
     },
@@ -94,18 +94,38 @@ pnpm restart    # 重启后台运行
 
 当项目有更新时，直接运行 `pnpm hot` 即可，无需重新启动项目。
 
+### 文章更新
+
+在 `nitro.config.ts` 的 `scheduledTasks` 中，使用 cron 表达式配置了 `update` 定时任务，用于文章更新。
+
+项目启动时也会更新文章，要禁用此行为，请设置环境变量或 `.env` 的 `DISABLE_STARTUP_UPDATE` 为 `true`。
+
 ## 项目 API
 
 #### `GET /`
 
-获取服务器状态信息，返回结构：
+获取服务器统计信息
 
-```json
+##### 查询参数（可选）
+
+| 参数  | 说明     | 示例         |
+| ----- | -------- | ------------ |
+| `tag` | 筛选标签 | `/?tag=2022` |
+
+##### 返回格式
+
+```jsonc
 {
-  "status": "success",
-  "packageJson": {
-    // package.json 内容
-  }
+  "update": {
+    // 服务器启动时间
+    "init": "2025-03-07T14:33:33.869Z",
+    // 更新开始时间
+    "start": "2025-03-07T14:33:36.478Z",
+    // 更新完成时间
+    "finish": null
+  },
+  // （标签下的）订阅源个数
+  "length": 151
 }
 ```
 
@@ -129,7 +149,7 @@ pnpm restart    # 重启后台运行
 
 ##### 返回格式
 
-```json
+```jsonc
 {
   "result": "success",
   "pagination": {
@@ -159,6 +179,10 @@ pnpm restart    # 重启后台运行
 #### `GET /opml`
 
 获取订阅源列表，返回格式为 OPML。
+
+#### `GET /rss`
+
+获取订阅源的文章列表，返回格式为 RSS。
 
 #### `POST /manual-update`
 

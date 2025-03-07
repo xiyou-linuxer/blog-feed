@@ -1,7 +1,7 @@
 import { Article } from '~/models/article'
 import { connectDB } from '~/utils/db'
 
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
     await connectDB()
     const {
         page: pageQuery,
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     } = getQuery(event)
 
     const page = Number.parseInt(pageQuery as string) || 1
-    const limit = Number.parseInt(limitQurery as string) || 24
+    const limit = Math.min(Number.parseInt(limitQurery as string) || 24, 100)
     const skip = (page - 1) * limit
 
     const [articles, total] = await Promise.all([
@@ -33,4 +33,4 @@ export default defineEventHandler(async (event) => {
         },
         articles,
     }
-})
+}, { maxAge: 60 * 15 })

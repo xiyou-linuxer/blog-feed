@@ -46,32 +46,36 @@ function purifyNode(node: any): string {
     return str.replace(/<[^>]*>/g, '').slice(0, 200)
 }
 
-function purifyDate(date: string): string {
+export function purifyDate(date: string): string {
     return new Date(date).toISOString()
 }
 
-export async function getPosts(feed: string) {
-    const response = await fetch(feed)
-    if (!response.ok) {
-        console.warn(`❌ Feed 请求失败 ${feed} ${response.status} ${response.statusText}`)
-        return []
-    }
-
-    const data = await response.text()
-    const parsed = parser.parse(data)
+export async function getPosts(feedUrl: string) {
+    const feed = await $fetch(feedUrl, {
+        parseResponse: xml => parser.parse(xml),
+    })
 
     for (const feedType of Object.values(feedTypeMap)) {
-        if (feedType.test(parsed))
-            return feedType.parse(parsed)
+        if (feedType.test(feed))
+            return feedType.parse(feed)
     }
 
-    console.warn(`❓ 未知的 Feed 类型 ${feed}`, parsed)
+    console.warn(`❓ 未知的 Feed 类型 ${feedUrl}`, feed)
     return []
 }
 
-export async function getFeedSource() {
-    const { feedSource } = useRuntimeConfig()
-    return feedSource.startsWith?.('http')
-        ? await fetch(feedSource).then(res => res.json())
-        : feedSource
-}
+export const cachedFeedList = defineCachedFunction(async (tag?: string) => {
+    const { feedListUrl, feedKey, tagKey } = useRuntimeConfig()
+
+    const rawFeedList = await $fetch<{ [key: string]: string }[]>(
+        feedListUrl,
+        { parseResponse: JSON.parse },
+    )
+    const feedList = rawFeedList
+        .filter(meta => meta[feedKey] && (meta[tagKey] === tag || !tag))
+
+    return feedList
+}, {
+    maxAge: 60 * 60 * 3,
+    getKey: tag => tag ?? 'feedList',
+})

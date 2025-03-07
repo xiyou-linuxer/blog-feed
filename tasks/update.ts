@@ -1,35 +1,31 @@
 import { Article } from '~/models/article'
 import { connectDB } from '~/utils/db'
-import { getFeedSource, getPosts } from '~/utils/feed'
+import { getPosts } from '~/utils/feed'
 
 export default defineTask({
     async run() {
         await connectDB()
         const {
-            feedSource,
+            feedListUrl,
             nameKey,
             tagKey,
             feedKey,
         } = useRuntimeConfig()
 
-        if (!feedSource)
+        if (!feedListUrl)
             throw new Error('未配置订阅源')
 
-        console.info(`⏳ 获取 ${feedSource}`)
+        console.info(`⏳ 获取 ${feedListUrl}`)
 
-        const members = await getFeedSource()
+        const feedList = await cachedFeedList()
+        await useStorage().setItem('update:start', new Date().toISOString())
 
         console.info('⏳ 开始爬取订阅源')
 
-        for (const member of members) {
-            const feed = member[feedKey]
-            if (!feed)
-                continue
+        for (const feedMeta of feedList) {
+            const { [feedKey]: feed, [tagKey]: tag, [nameKey]: name } = feedMeta
 
-            const tag = member[tagKey]
-            const name = member[nameKey]
-
-            console.info(`📄 解析 ${tag} 级 ${name}：${feed}`)
+            console.info(`📄 解析 [${tag}] ${name} 的 ${feed}`)
             const posts = await getPosts(feed)
 
             for (const post of posts) {
@@ -44,6 +40,7 @@ export default defineTask({
         }
 
         console.info('✅ 已完成订阅源爬取')
+        await useStorage().setItem('update:finish', new Date().toISOString())
         return { result: 'success' }
     },
 })
