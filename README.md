@@ -183,7 +183,3 @@ pnpm restart    # 重启后台运行
 #### `GET /rss`
 
 获取订阅源的文章列表，返回格式为 RSS。
-
-#### `POST /manual-update`
-
-触发文章列表的手动更新。
