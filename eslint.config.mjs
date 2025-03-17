@@ -9,7 +9,7 @@ export default antfu({
         'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
     },
 }, {
-    files: ['package.json'],
+    files: ['**/*.json'],
     rules: {
         'style/eol-last': ['warn', 'never'],
     },

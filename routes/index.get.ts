@@ -7,7 +7,9 @@ export default defineEventHandler(async (event) => {
         start: await useStorage().getItem('update:start'),
         finish: await useStorage().getItem('update:finish'),
     }
-    const feedList = await cachedFeedList(tag)
+    const rawFeedList = await cachedFeedList()
+    const { tagKey } = useRuntimeConfig()
+    const feedList = rawFeedList.filter(meta => meta[tagKey] === tag || !tag)
 
     return {
         result: 'success',

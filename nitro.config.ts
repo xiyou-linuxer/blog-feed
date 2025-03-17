@@ -18,7 +18,7 @@ export default defineNitroConfig({
 
     runtimeConfig: {
         /** 订阅源 JSON 的 URL */
-        feedListUrl: 'https://gh.llkk.cc/https://github.com/xiyou-linuxer/website-2024/blob/main/docs/.vitepress/data/members.json',
+        feedListUrl: 'https://raw.githubusercontent.com/xiyou-linuxer/website-2024/main/docs/.vitepress/data/members.json',
 
         /** 订阅源 JSON 的名称字段 */
         nameKey: 'name',

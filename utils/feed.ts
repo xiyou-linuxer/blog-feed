@@ -1,4 +1,5 @@
 import { XMLParser } from 'fast-xml-parser'
+import ghproxy from '~/data/ghproxy.json'
 
 const parser = new XMLParser({
     attributeNamePrefix: '$',
@@ -67,18 +68,30 @@ export async function getPosts(feedUrl: string) {
     return feedType.parse(feed)
 }
 
-export const cachedFeedList = defineCachedFunction(async (tag?: string) => {
-    const { feedListUrl, feedKey, tagKey } = useRuntimeConfig()
+export const cachedFeedList = defineCachedFunction(async () => {
+    const { feedListUrl, feedKey } = useRuntimeConfig()
 
-    const rawFeedList = await $fetch<{ [key: string]: string }[]>(
+    const batchFetch = async (urls) => {
+        const promises = urls.map(url => $fetch(url, { parseResponse: JSON.parse })
+            .then(data => ({ url, data }))
+            .catch(() => console.warn(`↩️ 获取 Feed 列表失败 ${url}`)))
+
+        for await (const result of promises) {
+            if (result && result.data) {
+                console.info(`✔️ 获取 Feed 列表成功 ${result.url}`)
+                return result.data
+            }
+        }
+        throw new Error('❌ 从所有源获取 Feed 列表失败')
+    }
+
+    const feedList = await batchFetch([
         feedListUrl,
-        { parseResponse: JSON.parse },
-    )
-    const feedList = rawFeedList
-        .filter(meta => meta[feedKey] && (meta[tagKey] === tag || !tag))
+        ...ghproxy.map(proxyUrl => proxyUrl + feedListUrl),
+    ])
 
-    return feedList
+    return feedList.filter(meta => meta[feedKey])
 }, {
     maxAge: 60 * 60 * 3,
-    getKey: tag => tag ?? 'feedList',
+    getKey: () => 'feedList',
 })
