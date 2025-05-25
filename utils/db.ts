@@ -7,5 +7,5 @@ export async function connectDB() {
     if (mongoose.connection.readyState >= 1)
         return
     await mongoose.connect(MONGO_URI, { dbName: 'blog-feed', authSource: 'admin' })
-    console.info('✅ MongoDB 连接成功')
+    console.info('🔗 MongoDB 连接成功')
 }

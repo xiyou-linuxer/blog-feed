@@ -1,6 +1,6 @@
 {
   "name": "blog-feed",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": true,
   "description": "西邮Linux兴趣小组博客订阅源聚合",
   "author": {
@@ -24,15 +24,16 @@
     "hot": "git pull && pnpm i && pnpm build && env-cmd -- pm2 reload blog-feed --update-env"
   },
   "dependencies": {
-    "fast-xml-parser": "^5.0.9",
-    "mongoose": "^8.12.1",
-    "nitropack": "^2.11.6",
+    "fast-xml-parser": "^5.2.3",
+    "mongoose": "^8.15.0",
+    "nitropack": "^2.11.12",
     "p-limit": "^6.2.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.10.1",
+    "@antfu/eslint-config": "^4.13.2",
+    "@types/node": "^22.15.21",
     "env-cmd": "^10.1.0",
-    "eslint": "^9.22.0"
+    "eslint": "^9.27.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

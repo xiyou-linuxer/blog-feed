@@ -1,7 +1,4 @@
 import pLimit from 'p-limit'
-import { Article } from '~/models/article'
-import { connectDB } from '~/utils/db'
-import { getPosts } from '~/utils/feed'
 
 export default defineTask({
     async run() {
@@ -9,39 +6,23 @@ export default defineTask({
         const { feedListUrl, concurrency = 5 } = useRuntimeConfig()
 
         if (!feedListUrl)
-            throw new Error('未配置订阅源')
+            throw new Error('❌ 未配置订阅源 URL，请检查 runtimeConfig 设置')
 
-        console.info(`⏳ 获取 ${feedListUrl}`)
+        console.info('🔍 正在获取订阅源列表...', feedListUrl)
 
         const feedList = await cachedFeedList()
         await useStorage().setItem('update:start', new Date().toISOString())
 
-        console.info('⏳ 开始爬取订阅源')
+        console.info('🚀 开始爬取订阅源，请稍候...')
 
         const limit = pLimit(concurrency)
-        const tasks = feedList.map(feedMeta => limit(() => processFeed(feedMeta)))
+        const tasks = feedList.map(feedMeta => limit(() => updateFeed(feedMeta)))
 
         await Promise.allSettled(tasks)
 
-        console.info('✅ 已完成订阅源爬取')
+        console.info('🎉 订阅源爬取完成！')
         await useStorage().setItem('update:finish', new Date().toISOString())
 
         return { result: 'success' }
     },
 })
-
-async function processFeed(feedMeta: any) {
-    const { feedKey, tagKey, nameKey } = useRuntimeConfig()
-    const { [feedKey]: feed, [tagKey]: tag, [nameKey]: name } = feedMeta
-
-    console.info(`📄 解析 [${tag}] ${name} ${feed}`)
-
-    const posts = await getPosts(feed)
-    await Promise.allSettled(posts.map(post => Article.updateOne(
-        { link: post.link },
-        { ...post, feed, tag },
-        { upsert: true },
-    )))
-
-    console.info(`✅ 已存储 [${tag}] ${name}`)
-}
