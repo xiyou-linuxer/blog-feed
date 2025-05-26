@@ -15,7 +15,8 @@ export async function parseFeed(feedUrl: string) {
         parseResponse: xml => parser.parse(xml),
     }).catch(err => console.warn(`🚨 获取 Feed 失败 [${feedUrl}]`, err))
 
-    feed.__url__ = feedUrl
+        // TODO unimplemented
+        ; (feed as any).__url__ = feedUrl
 
     const feedType = Object.values(feedTypeMap).find(type => type.test(feed))
     if (!feedType) {

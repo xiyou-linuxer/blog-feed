@@ -33,8 +33,9 @@ blog-feed
 ├── tasks                   # 定时任务
 │   └── update.ts               # 爬取文章并更新数据库
 └── utils                   # 工具函数
+    ├── crawl.ts                # Feed 爬取
     ├── db.ts                   # 数据库操作
-    └── feed.ts                 # Feed 解析
+    └── feed.ts                 # Feed 处理
 ```
 
 ## 项目配置
@@ -70,6 +71,8 @@ export default defineNitroConfig({
 pnpm i
 pnpm dev
 ```
+
+访问 http://localhost:3000/_nitro/tasks/update 即可手动触发更新任务。
 
 ### 配置 PM2
 
