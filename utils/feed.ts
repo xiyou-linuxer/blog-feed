@@ -5,7 +5,7 @@ export const feedTypeMap = {
             author: purifyNode(xml.feed.title),
             title: purifyNode(entry.title),
             description: purifyDescription(entry.summary, entry.content),
-            link: fixUrl(entry.link.$href, xml.__url__),
+            link: fixUrl(entry.link?.$href || entry.link, xml.__url__),
             date: purifyDate(entry.published || entry.updated),
         })),
     },
