@@ -1,3 +1,5 @@
+import { stripHtml } from 'string-strip-html'
+
 export const feedTypeMap = {
     atom1: {
         test: xml => xml?.feed,
@@ -27,7 +29,7 @@ function toArray<T>(obj: T | T[]): T[] {
     return Array.isArray(obj) ? obj : [obj]
 }
 
-type Node = string | {
+type Node = undefined | string | {
     $?: string
     _?: string
     $type?: string
@@ -35,19 +37,18 @@ type Node = string | {
 }
 
 function purifyNode(node: Node, limit = 200): string {
-    const str = typeof node === 'string' ? node : node?._ || node?.$ || ''
-    return str
-        .replace(/[\x00-\x08]/g, '') // eslint-disable-line no-control-regex
-        .replace(/<[^>]*>/g, '')
-        .slice(0, limit)
+    const input = typeof node === 'string' ? node : node?._ || node?.$ || ''
+    const { result } = stripHtml(input)
+    return result.slice(0, limit)
 }
 
 function purifyDescription(description: Node, content: Node): string {
-    const needContent = (description as any).$type
+    const purifiedDescription = purifyNode(description)
+    const needContent = typeof content !== 'string' && purifiedDescription.length < 10
 
     return needContent
-        ? purifyNode(content) || purifyNode(description)
-        : purifyNode(description) || purifyNode(content)
+        ? purifyNode(content) || purifiedDescription
+        : purifiedDescription || purifyNode(content)
 }
 
 function purifyDate(date: string): string {
