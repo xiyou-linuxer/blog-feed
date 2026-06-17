@@ -1,0 +1,14 @@
+node_modules/
+.output/
+.nitro/
+.cache/
+.data/
+dist/
+.env
+.git/
+.gitignore
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
+LICENSE

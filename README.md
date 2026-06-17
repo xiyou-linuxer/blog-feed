@@ -4,38 +4,45 @@
 
 ## 项目依赖
 
-前端：
+核心库：
 
 - [Nitro](https://nitro.build/)：[UnJS](https://unjs.io/) 家族的 Web 服务器，基于文件路由，支持定时任务
 - [Mongoose](https://mongoosejs.com/)：MongoDB 的 ODM，用于操作数据库
 - [Fast XML Parser](https://naturalintelligence.github.io/fast-xml-parser/#readme)：用于解析 Atom/RSS
-- [env-cmd](https://github.com/toddbluhm/env-cmd#readme)：用于在生产环境加载 `.env` 变量
 
-环境：
+运行环境：
 
 - [Node.js](https://nodejs.org/)：JavaScript 运行时
 - [MongoDB](https://www.mongodb.com/)：数据库
-- [PM2](https://pm2.keymetrics.io/)：进程管理器
+- [Docker](https://www.docker.com/)：容器化部署 / [PM2](https://pm2.keymetrics.io/)：进程管理器
 
 ## 项目结构
 
 ```sh
 blog-feed
-├── .env                    # 环境变量
+├── .env.example             # 环境变量模板
+├── Dockerfile               # Docker 构建文件
+├── docker-compose.yml       # Docker 编排
 ├── eslint.config.mjs       # ESLint 配置
-├── nitro.config.mjs        # Nitro 配置
-├── models                  # 数据模型
-│   └── article.ts              # 文章模型
-├── route                   # 基于文件的路由
-│   ├── index.get.ts            # 状态 API
-│   ├── article.get.ts          # 文章 API
-│   └── manual-update.post.ts   # 手动更新 API
-├── tasks                   # 定时任务
-│   └── update.ts               # 爬取文章并更新数据库
-└── utils                   # 工具函数
-    ├── crawl.ts                # Feed 爬取
-    ├── db.ts                   # 数据库操作
-    └── feed.ts                 # Feed 处理
+├── nitro.config.ts          # Nitro 配置
+├── data                     # 静态数据
+│   └── ghproxy.json             # GitHub 加速代理列表
+├── models                   # 数据模型
+│   └── article.ts               # 文章模型
+├── plugins                  # Nitro 插件
+│   └── init.ts                  # 启动时触发首次爬取
+├── routes                   # 基于文件的路由
+│   ├── index.get.ts             # 状态 API
+│   ├── articles.get.ts          # 文章 API
+│   ├── opml.get.ts              # OPML 导出
+│   ├── rss.get.ts               # RSS 导出
+│   └── [...].ts                 # CORS 预检
+├── tasks                    # 定时任务
+│   └── update.ts                # 爬取文章并更新数据库
+└── utils                    # 工具函数
+    ├── crawl.ts                 # Feed 爬取
+    ├── db.ts                    # 数据库操作
+    └── feed.ts                  # Feed 解析
 ```
 
 ## 项目配置
@@ -61,7 +68,86 @@ export default defineNitroConfig({
 })
 ```
 
-## 项目运行
+## Docker Compose 部署
+
+### DNS 与网络
+
+默认公网 API 域名是 `api.xiyoulinux.com`。部署前必须在 DNS 控制台添加解析记录：
+
+| 主机记录 | 记录类型 | 记录值 |
+|----------|----------|--------|
+| `api` | `A` | 云主机公网 IPv4 |
+
+同时在云服务器安全组和主机防火墙开放 **TCP 80 / 443**。不要开放 `3000` 或 `27017` 到公网：API 只在 Docker 网络内暴露 `3000`，MongoDB 只绑定主机 `127.0.0.1:27017`。
+
+### 环境变量
+
+首次部署前从模板创建 `.env`，并设置 MongoDB root 和应用用户密码：
+
+```bash
+cp .env.example .env
+vim .env
+```
+
+### 首次部署与证书申请
+
+如果服务器上还没有 `certbot-certs` volume 或证书文件，不要直接 `docker compose up`。仓库默认的 `nginx/default.conf` 是生产 HTTPS 配置，会引用证书路径；首次部署应运行初始化脚本：
+
+```bash
+bash nginx/init-ssl.sh
+```
+
+脚本会临时把 Nginx 切到 HTTP Webroot 配置，申请 `api.xiyoulinux.com` 证书，再切回 HTTPS 配置并重启 Nginx。默认邮箱为 `root@xiyoulinux.org`。如需更换域名或邮箱：
+
+```bash
+CERTBOT_DOMAIN=example.com CERTBOT_EMAIL=admin@example.com bash nginx/init-ssl.sh
+```
+
+### 更新部署
+
+已有证书的生产环境更新时，直接拉取代码、重建应用并重启 Nginx：
+
+```bash
+git fetch origin
+git reset --hard origin/main
+docker compose up -d --build
+docker compose restart nginx
+```
+
+如果只更新后端代码，也可以只重建应用容器：
+
+```bash
+docker compose up -d --build app
+```
+
+### 验证
+
+```bash
+docker compose ps
+curl -L 'https://api.xiyoulinux.com/articles?limit=1'
+curl -I 'https://api.xiyoulinux.com/articles?limit=1' -H 'Origin: https://www.xiyoulinux.com'
+```
+
+### 服务架构
+
+| 容器 | 端口 | 说明 |
+|------|------|------|
+| `nginx` | 80, 443 | 反代 + SSL，证书由 certbot 管理 |
+| `app` | 3000 (内网) | Nitro 后端 API |
+| `mongo` | 27017 (本地) | MongoDB 数据库 |
+| `certbot` | - | 每 12 小时检查证书续期 |
+
+### 常用命令
+
+```bash
+docker compose logs -f app         # 查看应用日志
+docker compose logs -f nginx       # 查看 Nginx 日志
+docker compose restart app         # 重启应用
+docker compose down                # 停止全部
+docker compose exec mongo mongosh -u root -p  # 进入数据库
+```
+
+## PM2 部署
 
 ### 开发
 
@@ -82,7 +168,7 @@ PM2 是一个进程管理器，用于在生产环境中管理 Node.js 应用程�
 pnpm i pm2 -g
 ```
 
-### 生产
+### PM2 部署
 
 在项目根目录下运行以下命令：
 
